@@ -21,7 +21,7 @@ async function run() {
   }
   const octokit = gh.getOctokit(process.env.GITHUB_TOKEN);
 
-  const [packageLock, pnpmLock, yarnLock, bunLock] = await Promise.allSettled([
+  const [lockfile] = await Promise.allSettled([
     octokit.rest.repos.getContent({
       repo: gh.context.repo.repo,
       owner: gh.context.repo.owner,
@@ -42,12 +42,8 @@ async function run() {
       owner: gh.context.repo.owner,
       path: "bun.lock",
     }),
-  ]);
-
-  console.log(packageLock);
-  console.log(pnpmLock);
-  console.log(yarnLock);
-  console.log(bunLock);
+  ]).then((res) => res.filter((r) => r.status === "fulfilled"));
+  console.log("lockfile", lockfile);
 
   const jobs = await octokit.rest.actions.listJobsForWorkflowRun({
     repo: gh.context.repo.repo,
