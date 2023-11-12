@@ -65,7 +65,7 @@ async function run() {
   });
 
   let shouldComment = false;
-  let commentBody = `Hello @${gh.context.actor},\n\n`;
+  let commentBody = `Hello @${gh.context.actor} and thank you for the pull request,\n\n`;
   commentBody += "The following jobs failed and must be fixed:\n\n";
 
   for (const job of jobs.data.jobs) {
