@@ -44,6 +44,19 @@ async function run() {
     }),
   ]).then((res) => res.filter((r) => r.status === "fulfilled"));
   console.log("lockfile", lockfile);
+  const lockfileName =
+    lockfile?.status === "fulfilled" && "name" in lockfile.value.data
+      ? lockfile.value.data.name
+      : "package-lock.json";
+  const packageManager = {
+    "package-lock.json": "npm",
+    "pnpm-lock.yaml": "pnpm",
+    "yarn.lock": "yarn",
+    "bun.lock": "bun",
+  }[lockfileName]!;
+
+  console.log("Detected package manager:", packageManager);
+  const runScript = packageManager === "npm" ? "npm run" : packageManager;
 
   const jobs = await octokit.rest.actions.listJobsForWorkflowRun({
     repo: gh.context.repo.repo,
@@ -63,7 +76,9 @@ async function run() {
       shouldComment = true;
       commentBody += `- [ ] ${name}`;
       if (fix) {
-        commentBody += `. This check can be fixed by running '${fix}')`;
+        commentBody += `. This check can be fixed by running '${
+          runScript + " " + fix
+        }'`;
       }
       commentBody += "\n";
     }
