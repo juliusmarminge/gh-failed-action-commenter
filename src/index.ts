@@ -24,19 +24,40 @@ async function run() {
 
   const octokit = gh.getOctokit(process.env.GITHUB_TOKEN);
 
-  const run = await octokit.rest.actions.getWorkflowRun({
-    owner: gh.context.repo.owner,
+  const jobs = await octokit.rest.actions.listJobsForWorkflowRun({
     repo: gh.context.repo.repo,
+    owner: gh.context.repo.owner,
     run_id: gh.context.runId,
   });
-  console.log("RUN", run);
 
-  const jobs = await octokit.rest.actions.getJobForWorkflowRun({
+  let shouldComment = false;
+  let commentBody = `Hello @${gh.context.actor},\n\n`;
+  commentBody += "The following jobs failed:\n\n";
+
+  for (const job of jobs.data.jobs) {
+    const { name, conclusion } = job;
+    const fix = fixes[name];
+    if (!fix) continue;
+
+    if (conclusion === "failure") {
+      shouldComment = true;
+      commentBody += `- [ ] [${name}](Fixable by running '${fix}')\n`;
+    }
+  }
+
+  if (!shouldComment) {
+    console.log("No jobs failed, skipping comment");
+    return;
+  }
+
+  console.log("Jobs failed, commenting");
+
+  await octokit.rest.issues.createComment({
     repo: gh.context.repo.repo,
     owner: gh.context.repo.owner,
-    job_id: gh.context.runId,
+    issue_number: gh.context.issue.number,
+    body: commentBody,
   });
-  console.log("JOBS", jobs);
 }
 
 run();
