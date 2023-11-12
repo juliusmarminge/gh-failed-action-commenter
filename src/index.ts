@@ -11,7 +11,7 @@ async function run() {
   try {
     fixes = JSON.parse(fixesStr);
   } catch (e) {
-    core.setFailed(`Error parsing FIXES as JSON: ${e}`);
+    core.setFailed(`Error parsing FIXES (${fixesStr}) as JSON: ${e}`);
     return;
   }
 
