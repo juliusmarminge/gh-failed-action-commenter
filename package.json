@@ -1,11 +1,12 @@
 {
   "name": "github-actoin-commenter",
   "private": true,
+  "type": "module",
   "packageManager": "bun@1.0.11",
   "license": "MIT",
   "exports": "./dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts  -o dist -m --license licenses.txt --source-map",
+    "build": "ncc build src/index.ts  -o dist -m --license licenses.txt",
     "dev": "pnpm build -w",
     "release": "pnpm build && git add . && git commit -m 'release' && git push && gh release create $2 --title \"$2\" --notes ''"
   },
