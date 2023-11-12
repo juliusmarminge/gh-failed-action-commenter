@@ -15,14 +15,39 @@ async function run() {
     return;
   }
 
-  console.log("FIXES", fixes);
-
   if (!process.env.GITHUB_TOKEN) {
     core.setFailed("No GITHUB_TOKEN found in environment");
     return;
   }
-
   const octokit = gh.getOctokit(process.env.GITHUB_TOKEN);
+
+  const [packageLock, pnpmLock, yarnLock, bunLock] = await Promise.allSettled([
+    octokit.rest.repos.getContent({
+      repo: gh.context.repo.repo,
+      owner: gh.context.repo.owner,
+      path: "package-lock.json",
+    }),
+    octokit.rest.repos.getContent({
+      repo: gh.context.repo.repo,
+      owner: gh.context.repo.owner,
+      path: "pnpm-lock.yaml",
+    }),
+    octokit.rest.repos.getContent({
+      repo: gh.context.repo.repo,
+      owner: gh.context.repo.owner,
+      path: "yarn.lock",
+    }),
+    octokit.rest.repos.getContent({
+      repo: gh.context.repo.repo,
+      owner: gh.context.repo.owner,
+      path: "bun.lock",
+    }),
+  ]);
+
+  console.log(packageLock);
+  console.log(pnpmLock);
+  console.log(yarnLock);
+  console.log(bunLock);
 
   const jobs = await octokit.rest.actions.listJobsForWorkflowRun({
     repo: gh.context.repo.repo,
@@ -32,16 +57,19 @@ async function run() {
 
   let shouldComment = false;
   let commentBody = `Hello @${gh.context.actor},\n\n`;
-  commentBody += "The following jobs failed:\n\n";
+  commentBody += "The following jobs failed and must be fixed:\n\n";
 
   for (const job of jobs.data.jobs) {
     const { name, conclusion } = job;
     const fix = fixes[name];
-    if (!fix) continue;
 
     if (conclusion === "failure") {
       shouldComment = true;
-      commentBody += `- [ ] [${name}](Fixable by running '${fix}')\n`;
+      commentBody += `- [ ] ${name}`;
+      if (fix) {
+        commentBody += `. This check can be fixed by running '${fix}')`;
+      }
+      commentBody += "\n";
     }
   }
 
@@ -49,8 +77,6 @@ async function run() {
     console.log("No jobs failed, skipping comment");
     return;
   }
-
-  console.log("Jobs failed, commenting");
 
   await octokit.rest.issues.createComment({
     repo: gh.context.repo.repo,
