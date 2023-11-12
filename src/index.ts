@@ -16,6 +16,20 @@ async function run() {
   }
 
   console.log("FIXES", fixes);
+
+  if (!process.env.GITHUB_TOKEN) {
+    core.setFailed("No GITHUB_TOKEN found in environment");
+    return;
+  }
+
+  const octokit = gh.getOctokit(process.env.GITHUB_TOKEN);
+
+  const jobs = await octokit.rest.actions.getJobForWorkflowRun({
+    repo: gh.context.repo.repo,
+    owner: gh.context.repo.owner,
+    job_id: gh.context.runId,
+  });
+  console.log("JOBS", jobs);
 }
 
 run();

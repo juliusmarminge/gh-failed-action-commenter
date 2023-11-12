@@ -5,9 +5,6 @@ inputs:
     description: "A JSON object mapping failed job names to a npm script how to fix them"
     required: false
     default: "{}"
-  GITHUB_TOKEN:
-    description: "The GitHub token to use for authentication"
-    required: true
 runs:
   using: "node20"
   main: "dist/index.js"
