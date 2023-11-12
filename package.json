@@ -6,7 +6,7 @@
   "license": "MIT",
   "exports": "./dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts  -o dist -m --license licenses.txt",
+    "build": "ncc build src/index.ts  -o dist -m --license licenses.txt --source-map",
     "dev": "pnpm build -w",
     "release": "pnpm build && git add . && git commit -m 'release' && git push && gh release create $2 --title \"$2\" --notes ''"
   },
