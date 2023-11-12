@@ -76,9 +76,9 @@ async function run() {
       shouldComment = true;
       commentBody += `- [ ] ${name}`;
       if (fix) {
-        commentBody += `. This check can be fixed by running '${
+        commentBody += `. This check can be fixed by running <code>${
           runScript + " " + fix
-        }'`;
+        }</code>`;
       }
       commentBody += "\n";
     }
