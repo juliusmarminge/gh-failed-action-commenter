@@ -1,6 +1,7 @@
 {
   "name": "github-actoin-commenter",
   "private": true,
+  "version": "0.0.1",
   "type": "module",
   "packageManager": "bun@1.0.11",
   "license": "MIT",
