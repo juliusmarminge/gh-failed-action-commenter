@@ -1,0 +1,13 @@
+name: "Failed Workflow Commenter"
+description: "Let's the PR author know that CI failed by adding a comment and telling them how to fix it"
+inputs:
+  FIXES:
+    description: "A JSON object mapping failed job names to a npm script how to fix them"
+    required: false
+    default: "{}"
+  GITHUB_TOKEN:
+    description: "The GitHub token to use for authentication"
+    required: true
+runs:
+  using: "node20"
+  main: "dist/index.js"
