@@ -24,6 +24,13 @@ async function run() {
 
   const octokit = gh.getOctokit(process.env.GITHUB_TOKEN);
 
+  const run = await octokit.rest.actions.getWorkflowRun({
+    owner: gh.context.repo.owner,
+    repo: gh.context.repo.repo,
+    run_id: gh.context.runId,
+  });
+  console.log("RUN", run);
+
   const jobs = await octokit.rest.actions.getJobForWorkflowRun({
     repo: gh.context.repo.repo,
     owner: gh.context.repo.owner,
